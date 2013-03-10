@@ -26,11 +26,11 @@ if !  [ -d "$repo/.git" ]; then		#Check if the repository exists at given locati
 #Move the files into repo
 else 	
 	for filename in "$@"; do 
-
+	target=$repo/${filename#*/}
 	if [ -f $1 ] && [ -r $1 ]; then 
 	
-		if ! [ -f $repo/${filename#*/} || [ $filename -nt $repo/${filename#*/} ] ]; then  #Check if the file already exists in repository, if not, put it there
-			cp $filename $repo
+		if ! [ -f $target || [ $filename -nt $target ] ]; then  #Check if the file already exists in repository, if not, put it there
+			cp $filename $target
 		fi
 	
 		cd "$repo"
