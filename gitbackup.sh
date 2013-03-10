@@ -43,7 +43,6 @@ cd $repo
 if [ -n "$message" ]; then 
 	msg="-m \"$message\""
 fi
-#eval 
 git commit "$msg" #Supply the commit message if present, otherwise we rely on git's prompt
 reponame=${repo#/home/$USER/}
 git push ${reponame%%/*}
