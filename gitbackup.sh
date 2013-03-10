@@ -1,17 +1,21 @@
 #!/bin/bash
 #set -o xtrace
-message="New revision"
-usage="Usage: $0 [-m message] [-r repository] file1 ..."
+usage="Usage: $0 -m message [-r repository] file1 ..."
 repo=~/test
 
-while getopts ":m:r" opt; do #Start the options handling block. We accept -m for commit msg and repo name. Repo dir is assumed to be under ~
+while getopts "m:r:" opt; do #Start the options handling block. We accept -m for commit msg and repo name. Repo dir is assumed to be under ~
 	case $opt in 
-		m ) message="$OPTARG" ;;
-		r ) ;; # repo=$OPTARTG; echo $repo ;;
+		m ) if [ -n "$OPTARG" ]; then message=$OPTARG; fi ;; 
+		r ) ;; #repo=$OPTARTG; echo $repo ;;
 		\? ) echo $usage 
 		exit 1 ;;
 	esac
 done
+
+if [ -z "$message" ]; then
+	echo $usage
+	exit 1
+fi
 
 shift $((OPTIND - 1))
 
