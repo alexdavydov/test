@@ -29,7 +29,7 @@ else
 	target=$repo/${filename#*/}
 	if [ -f $1 ] && [ -r $1 ]; then 
 	
-		if ! [ -f $target || [ $filename -nt $target ] ]; then  #Check if the file already exists in repository, if not, put it there
+		if ! [ -f $target ] || [ $filename -nt $target ]; then  #Check if the file already exists in repository, if not, put it there
 			cp $filename $target
 		fi
 	
