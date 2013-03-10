@@ -1,6 +1,6 @@
 #!/bin/bash
 #set -o xtrace
-usage="Usage: $0 -m message [-r repository] file1 ..."
+usage="Usage: gitbackup.sh [-m message] [-r repository] file1 [file2] ..."
 repo=~/test
 
 while getopts "m:r:" opt; do #Start the options handling block. We accept -m for commit msg and repo name. Repo dir is assumed to be under ~
@@ -25,15 +25,15 @@ if !  [ -d "$repo/.git" ]; then		#Check if the repository exists at given locati
 #Move the files into repo
 fi	
 for filename in "$@"; do 
-	target=$repo/${filename#*/}
+	target=$repo/${filename##*/} #Strip directory part and append repo path
 	if [ -f $1 ] && [ -r $1 ]; then 
 
 		if ! [ -f $target ] || [ $filename -nt $target ]; then  #Check if the file already exists in repository, if not, put it there
 			cp $filename $target
 		fi
 
-		cd "$repo"
-		git add ${filename#*/}
+		cd "$repo" #We should be in git's repo directory, otherwise it won't understand
+		git add ${filename##*/}
 		cd $OLDPWD
 	fi
 done
@@ -43,6 +43,6 @@ cd $repo
 if [ -n "$message" ]; then 
 	msg="-m \"$message\""
 fi
-eval "git commit" $msg
+eval "git commit" $msg #Supply the commit message if present, otherwise we rely on git's prompt
 reponame=${repo#/home/$USER/}
-git push ${reponame%/*}
+git push ${reponame%%/*}
