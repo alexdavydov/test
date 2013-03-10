@@ -1,0 +1,17 @@
+#!/bin/bash
+
+#This displays the home dir
+echo "Home directory:"
+echo $HOME
+
+#Display the terminal type
+echo "Terminal type:"
+echo $TERM
+
+echo "Shell:"
+echo $SHELL
+
+
+#Display the list of services
+echo "List of services:"
+ls /etc/rc3.d/S*
