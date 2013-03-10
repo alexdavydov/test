@@ -40,6 +40,6 @@ else
 done
 cd $repo
 git commit -m "$message"
-reponame="${repo%%/*}"
+reponame=${repo%%/*}
 git push ${repository#~/}
 fi
