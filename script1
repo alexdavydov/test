@@ -4,6 +4,8 @@ clear
 
 echo "The script starts now!"
 
+pwd
+
 echo "Hi, $USER!"
 echo
 

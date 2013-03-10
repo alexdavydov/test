@@ -15,3 +15,5 @@ echo $SHELL
 #Display the list of services
 echo "List of services:"
 ls /etc/rc3.d/S*
+
+pwd
