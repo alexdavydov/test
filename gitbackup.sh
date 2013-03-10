@@ -39,6 +39,6 @@ else
 	fi
 done
 cd $repo
-git commit -m '$message'
+git commit -m "$message"
 git push ${repo#~/}
 fi
