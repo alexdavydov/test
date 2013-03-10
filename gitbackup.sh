@@ -12,11 +12,6 @@ while getopts "m:r:" opt; do #Start the options handling block. We accept -m for
 	esac
 done
 
-#if [ -z "$message" ]; then
-#	echo $usage
-#	exit 1
-#fi
-
 shift $((OPTIND - 1))
 
 if [ -z "$*" ]; then	#Exit if no arguments
@@ -28,27 +23,26 @@ if !  [ -d "$repo/.git" ]; then		#Check if the repository exists at given locati
 	echo "$repo is not a git repository"
 	exit 1
 #Move the files into repo
-else 	
-	for filename in "$@"; do 
+fi	
+for filename in "$@"; do 
 	target=$repo/${filename#*/}
 	if [ -f $1 ] && [ -r $1 ]; then 
-	
+
 		if ! [ -f $target ] || [ $filename -nt $target ]; then  #Check if the file already exists in repository, if not, put it there
 			cp $filename $target
 		fi
-	
+
 		cd "$repo"
 		git add ${filename#*/}
 		cd $OLDPWD
 	fi
-	
-	done
+done
+
 #Commit and push
-	cd $repo
-	if [ -n "$message" ]; then 
-		msg="-m \"$message\""
-	fi
-	eval "git commit" $msg
-	reponame=${repo#/home/$USER/}
-	git push ${reponame%/*}
+cd $repo
+if [ -n "$message" ]; then 
+	msg="-m \"$message\""
 fi
+eval "git commit" $msg
+reponame=${repo#/home/$USER/}
+git push ${reponame%/*}
