@@ -14,12 +14,10 @@ while getopts ":m:r" opt; do #Start the options handling block. We accept -m for
 done
 
 shift $((OPTIND - 1))
-echo "$*"
 if [ -z "$*" ]; then	#Exit if no arguments
 	echo $usage
 	exit 1
 fi
-echo $repo
 if !  [ -d "$repo/.git" ]; then
 	echo "$repo is not a git repository"
 	exit 1
