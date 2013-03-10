@@ -28,19 +28,18 @@ else
 	for filename in "$@"; do 
 
 	if [ -f $1 ] && [ -r $1 ]; then 
-#		cp $1 "~/$repo" 
-#		git add $1
-	pwd
-	if ! [ -f $repo/${filename#*/} ]; then
+	
+	if ! [ -f $repo/${filename#*/} ]; then  #Check if the file already exists in repository, if not, put it there
 		cp $filename $repo
 	fi
+	
 	cd "$repo"
 	git add ${filename#*/}
 	cd $OLDPWD
-	pwd
 	fi
 done
 cd $repo
 git commit -m "$message"
-git push ${repo#~/}
+repository={$repo%%/*}
+git push ${repository#~/}
 fi
