@@ -42,5 +42,5 @@ cd $repo
 git commit -m "$message"
 echo $repo
 reponame=${repo##/*/}
-git push ${repository#~/}
+git push $reponame
 fi
