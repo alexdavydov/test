@@ -48,8 +48,7 @@ else
 	if [ -n "$message" ]; then 
 		msg="-m \"$message\""
 	fi
-	echo -e $msg
 	eval "git commit" $msg
 	reponame=${repo#/home/$USER/}
-#	git push ${reponame%/*}
+	git push ${reponame%/*}
 fi
