@@ -46,5 +46,3 @@ fi
 git commit "$message" #Supply the commit message if present, otherwise we rely on git's prompt
 reponame=${repo#/home/$USER/}
 git push ${reponame%%/*}
-
-#test
