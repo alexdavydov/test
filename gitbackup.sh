@@ -34,7 +34,7 @@ for filename in "$@"; do
 		fi
 
 		cd "$repo" #We should be in git's repo directory, otherwise it won't understand
-		git add ${filename##*/}
+		git add -r ${filename##*/}
 		cd $OLDPWD
 	fi
 done
