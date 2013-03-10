@@ -26,10 +26,11 @@ if !  [ -d "$repo/.git" ]; then		#Check if the repository exists at given locati
 fi	
 for filename in "$@"; do 
 	target=$repo/${filename##*/} #Strip directory part and append repo path
-	if [ -f $1 ] && [ -r $1 ]; then 
+	
+	if [ -e $1 ] && [ -r $1 ];  then 
 
-		if ! [ -f $target ] || [ $filename -nt $target ]; then  #Check if the file already exists in repository, if not, put it there
-			cp $filename $target
+		if ! [ -e $target ] || [ $filename -nt $target ]; then  #Check if the file already exists in repository, if not, put it there
+			cp -r $filename $target
 		fi
 
 		cd "$repo" #We should be in git's repo directory, otherwise it won't understand
