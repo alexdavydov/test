@@ -12,10 +12,10 @@ while getopts "m:r:" opt; do #Start the options handling block. We accept -m for
 	esac
 done
 
-if [ -z "$message" ]; then
-	echo $usage
-	exit 1
-fi
+#if [ -z "$message" ]; then
+#	echo $usage
+#	exit 1
+#fi
 
 shift $((OPTIND - 1))
 
@@ -45,7 +45,11 @@ else
 	done
 #Commit and push
 	cd $repo
-	git commit -m "$message"
+	if [ -n "$message" ]; then 
+		msg="-m \"$message\""
+	fi
+	echo -e $msg
+	eval "git commit" $msg
 	reponame=${repo#/home/$USER/}
-	git push ${reponame%/*}
+#	git push ${reponame%/*}
 fi
