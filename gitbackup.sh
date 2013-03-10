@@ -50,7 +50,5 @@ else
 	fi
 	eval "git commit" $msg
 	reponame=${repo#/home/$USER/}
-#	git push ${reponame%/*}
+	git push ${reponame%/*}
 fi
-
-#asd
