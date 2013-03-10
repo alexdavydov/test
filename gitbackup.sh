@@ -6,7 +6,7 @@ repo=~/test
 
 while getopts ":m:r" opt; do #Start the options handling block. We accept -m for commit msg and repo name. Repo dir is assumed to be under ~
 	case $opt in 
-		m ) message="$OPTARG";  echo $OPTARG;;
+		m ) message="$OPTARG" ;;
 		r ) ;; # repo=$OPTARTG; echo $repo ;;
 		\? ) echo $usage 
 		exit 1 ;;
