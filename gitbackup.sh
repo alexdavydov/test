@@ -1,5 +1,5 @@
 #!/bin/bash
-set -o xtrace
+#set -o xtrace
 message="New revision"
 usage="Usage: $0 [-m message] [-r repository] file1 ..."
 repo=~/test
@@ -40,7 +40,6 @@ else
 done
 cd $repo
 git commit -m "$message"
-echo $repo
 reponame=${repo#/home/$USER/}
 git push ${reponame%/*}
 fi
