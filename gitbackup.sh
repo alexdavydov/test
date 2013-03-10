@@ -5,7 +5,7 @@ repo=~/test
 
 while getopts "m:r:" opt; do #Start the options handling block. We accept -m for commit msg and repo name. Repo dir is assumed to be under ~
 	case $opt in 
-		m ) if [ -n "$OPTARG" ]; then message=$OPTARG; fi ;; 
+		m ) if [ -n "$OPTARG" ]; then message="$OPTARG"; fi ;; 
 		r ) ;; #repo=$OPTARTG; echo $repo ;;
 		\? ) echo $usage 
 		exit 1 ;;
@@ -41,7 +41,7 @@ done
 #Commit and push
 cd $repo
 if [ -n "$message" ]; then 
-	message="-m \"$message\""
+	message="-m $message"
 fi
 git commit "$message" #Supply the commit message if present, otherwise we rely on git's prompt
 reponame=${repo#/home/$USER/}
