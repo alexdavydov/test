@@ -31,7 +31,9 @@ else
 #		cp $1 "~/$repo" 
 #		git add $1
 	pwd
-	cp $filename $repo
+	if ! [ -f $repo/${filename#*/} ]; then
+		cp $filename $repo
+	fi
 	cd "$repo"
 	git add ${filename#*/}
 	cd $OLDPWD
