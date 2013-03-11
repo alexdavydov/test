@@ -47,5 +47,6 @@ if [ -n "$message" ]; then
 fi
 git commit "$message" "$quiet" #Supply the commit message if present, otherwise we rely on git's prompt
 reponame=${repo#/home/$USER/}
-echo "git push $quiet ${reponame%%/*}"
-#git push "$quiet" ${reponame%%/*}
+if [[ -n $quiet ]]; then
+	git push "$quiet" ${reponame%%/*} 
+fi
