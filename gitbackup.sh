@@ -3,10 +3,10 @@
 usage="Usage: gitbackup.sh [-m message] [-r repository] file1 [file2] ..."
 repo=~/test
 
-while getopts "m:r:" opt; do #Start the options handling block. We accept -m for commit msg and repo name. Repo dir is assumed to be under ~
+while getopts ":m:r:" opt; do #Start the options handling block. We accept -m for commit msg and repo name. Repo dir is assumed to be under ~
 	case $opt in 
 		m ) if [ -n "$OPTARG" ]; then message="$OPTARG"; fi ;; 
-		r ) repo=$OPTARG ;;
+		r ) if [ -n "$OPTARG" ]; then repo="$OPTARG"; fi ;;
 		\? ) echo $usage 
 		exit 1 ;;
 	esac
@@ -34,7 +34,7 @@ for filename in "$@"; do
 		fi
 
 		cd "$repo" #We should be in git's repo directory, otherwise it won't understand
-		git add -r ${filename##*/}
+		git add ${filename##*/}
 		cd $OLDPWD
 	fi
 done
