@@ -49,4 +49,5 @@ git commit "$message" "$quiet" #Supply the commit message if present, otherwise 
 reponame=${repo#/home/$USER/}
 if [[ -n $quiet ]]; then
 	git push "$quiet" ${reponame%%/*} 
+else git push ${reponame%%/*}
 fi
