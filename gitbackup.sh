@@ -3,10 +3,11 @@
 usage="Usage: gitbackup.sh [-m message] [-r repository] file1 [file2] ..."
 repo=~/test
 
-while getopts ":m:r:" opt; do #Start the options handling block. We accept -m for commit msg and repo name. Repo dir is assumed to be under ~
+while getopts ":m:r:q" opt; do #Start the options handling block. We accept -m for commit msg and repo name. Repo dir is assumed to be under ~
 	case $opt in 
 		m ) if [[ -n "$OPTARG" ]]; then message="$OPTARG"; fi ;; 
 		r ) if [[ -n "$OPTARG" ]]; then repo="$OPTARG"; fi ;;
+		q ) quiet="-q" ;;
 		\? ) echo $usage 
 		exit 1 ;;
 	esac
@@ -44,6 +45,9 @@ cd $repo
 if [[ -n "$message" ]]; then 
 	message="-m $message"
 fi
-git commit "$message" #Supply the commit message if present, otherwise we rely on git's prompt
+git commit "$message" "$quiet" #Supply the commit message if present, otherwise we rely on git's prompt
 reponame=${repo#/home/$USER/}
-git push ${reponame%%/*}
+if [[ -n $quiet ]]; then
+	git push -q ${reponame%%/*} 
+else git push ${reponame%%/*}
+fi
