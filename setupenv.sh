@@ -1,9 +1,12 @@
 #!/bin/bash
 
-#Setup user environment on a remote host
+#Setup current user's environment on a remote host
+#(C) 2013 Alex Davydov 
 
 function printhelp () {
 cat << EOF
+setupenv - setup current user's environment and keys on a remote host
+
 Usage:	setupenv [OPTIONS] REMOTE_HOST
 
 -h	print this message
@@ -23,10 +26,10 @@ exit 1
 }
 
 declare remotehost
-testfile=file_$(cat /dev/urandom | tr -dc [:alnum:] | head -c12)
+testfile=file_$(cat /dev/urandom | tr -dc [:alnum:] | head -c16) #Make a good random filename
 username=$USER
 keysonly=0
-declare quiet=""
+quiet=""
 
 while getopts "hnqu:" arg
 	do 
@@ -46,6 +49,8 @@ if [[ $1 =~ [0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3} ]]; then remotehost=$
 	else printusage; 
 fi
 
+#Verify writeability of the remote directory
+#Then check existence of .ssh and authorized_keys. If not, create those
 if [[ -z $quiet ]]; then echo "Testing if we can write to remote directory..."; fi
 ssh $quiet $username@$remotehost bash << EOF
 touch "$testfile"
@@ -65,6 +70,7 @@ if ! [[ -e authorized_keys ]]; then
 fi
 EOF
 
+
 if [[ -z  $quiet ]]; then echo "Copying public and private keys...:"; fi
 scp $quiet ~/.ssh/id_rsa ~/.ssh/id_rsa.pub $username@$remotehost:~/.ssh
 
@@ -74,6 +80,7 @@ cd ~/.ssh
 cat id_rsa.pub >> authorized_keys
 EOF
 
+#Copy user's environment files
 if [[ $keysonly = 0 ]]; then
 
 	if [[ -z  $quiet ]]; then echo "Copying environment files..."; fi
