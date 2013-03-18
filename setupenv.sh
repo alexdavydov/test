@@ -33,7 +33,7 @@ username=$USER
 keysonly=0
 quiet=""
 
-while getopts "hk:nqu:" arg
+while getopts ":hk:nqu:" arg
 	do 
 	case $arg in
 	h ) printhelp  ;;
