@@ -53,14 +53,14 @@ if [[ $1 =~ [0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3} ]]; then remotehost=$
 fi
 if [[ -z $key ]]; then 
 		if [[ -n $(pgrep ssh-agent) ]]; then 
-			ssh-add -l 
-			if  [[ $? = 0 ]]; then 
+			if ! [[ $(ssh-add -l) =~ "The agent has no identities" ]]; then 
 				key=$(ssh-add -l | head -1 | cut -d" " -f3)
-				else printusage
 			fi
+			else printusage
 		fi
-	elif ! [[ -z $(grep ssh-rsa $key) || -z $(grep ssh-dss $key) ]]; then 
+	elif  [[ -z $(grep ssh-rsa $key) && -z $(grep ssh-dss $key) ]]; then 
 		echo "$key is not a valid SSH public key"
+		exit 1
 fi
 #Verify writeability of the remote directory
 #Then check existence of .ssh and authorized_keys. If not, create those
