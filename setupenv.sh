@@ -60,6 +60,7 @@ if [[ -z $key ]]; then
 			fi
 		elif [[ -r ~/.ssh/id_rsa.pub ]]; then 
 			key=~/.ssh/id_rsa.pub
+		else printusage
 		fi
 	elif  [[ -z $(grep ssh-rsa $key) && -z $(grep ssh-dss $key) ]]; then
 		echo "$key is not a valid SSH public key"
