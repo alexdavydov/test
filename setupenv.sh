@@ -10,18 +10,20 @@ setupenv - setup current user's environment and keys on a remote host
 Usage:	setupenv [OPTIONS] REMOTE_HOST
 
 -h	print this message
--n	only copy public keys and setup authorized_keys
+-k	path to public key 
+-n	only copy public key and setup authorized_keys
 -q	suppress output
--u	username
+-u	username to be used for remote login
 
 REMOTE_HOST can be either hostname or IP address
+If you do not specify the key file and multiple identities are present in ssh-agent, the first one is used.
 EOF
 exit 0
 }
 
 function printusage ()
 {
-echo "Usage: setupenv [-hnq] [-u USERNAME] REMOTE_HOST"
+echo "Usage: setupenv [-hnq] [-k PUBKEY] [-u USERNAME] REMOTE_HOST"
 exit 1
 }
 
@@ -31,10 +33,11 @@ username=$USER
 keysonly=0
 quiet=""
 
-while getopts "hnqu:" arg
+while getopts "hk:nqu:" arg
 	do 
 	case $arg in
 	h ) printhelp  ;;
+	k ) key=$OPTARG ;;
 	n ) keysonly=1 ;;
 	q ) quiet="-q" ;;
 	u ) if [[ -n $OPTARG ]]; then username="$OPTARG"; else printusage; fi ;;
@@ -43,12 +46,22 @@ while getopts "hnqu:" arg
 done
 shift $((OPTIND-1))
 
-#Check validity of the argument
+#Check validity of the arguments
 if [[ $1 =~ [0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3} ]]; then remotehost=$1; #Simple 4-octet regex, can be improved with a full-blown match
 	elif [[ $1 =~ ^[a-zA-Z0-9\-\.]{1,255}$ ]]; then remotehost=$1; #We also accept hostnames
 	else printusage; 
 fi
-
+if [[ -z $key ]]; then 
+		if [[ -n $(pgrep ssh-agent) ]]; then 
+			ssh-add -l 
+			if  [[ $? = 0 ]]; then 
+				key=$(ssh-add -l | head -1 | cut -d" " -f3)
+				else printusage
+			fi
+		fi
+	elif ! [[ -z $(grep ssh-rsa $key) || -z $(grep ssh-dss $key) ]]; then 
+		echo "$key is not a valid SSH public key"
+fi
 #Verify writeability of the remote directory
 #Then check existence of .ssh and authorized_keys. If not, create those
 if [[ -z $quiet ]]; then echo "Testing if we can write to remote directory..."; fi
@@ -66,18 +79,19 @@ fi
 cd .ssh
 if ! [[ -e authorized_keys ]]; then 
 	touch authorized_keys
-	chmod 700 authorized_keys
+	chmod 600 authorized_keys
 fi
 EOF
 
 
-if [[ -z  $quiet ]]; then echo "Copying public and private keys...:"; fi
-scp $quiet ~/.ssh/id_rsa ~/.ssh/id_rsa.pub $username@$remotehost:~/.ssh
+if [[ -z  $quiet ]]; then echo "Copying public key...:"; fi
+scp $quiet $key $username@$remotehost:~/.ssh
 
 if [[ -z  $quiet ]]; then echo "Setting up remote authorized_keys..."; fi
 ssh $quiet $username@$remotehost bash << EOF
 cd ~/.ssh
-cat id_rsa.pub >> authorized_keys
+chmod 644 ${key##*/}
+cat ${key##*/} >> authorized_keys
 EOF
 
 #Copy user's environment files
