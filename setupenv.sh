@@ -9,11 +9,11 @@ setupenv - setup current user's environment and keys on a remote host
 
 Usage:	setupenv [OPTIONS] REMOTE_HOST
 
--h	print this message
--k	path to public key 
--n	only copy public key and setup authorized_keys
--q	suppress output
--u	username to be used for remote login
+	-h		print this message
+	-k PATH		path to public key 
+	-n		only copy public key and setup authorized_keys
+	-q		suppress output
+	-u USERNAME	username to be used for remote login
 
 REMOTE_HOST can be either hostname or IP address
 If you do not specify the key file and multiple identities are present in ssh-agent, the first one is used.
