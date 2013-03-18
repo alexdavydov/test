@@ -10,12 +10,13 @@ setupenv - setup current user's environment and keys on a remote host
 Usage:	setupenv [OPTIONS] REMOTE_HOST
 
 	-h		print this message
-	-k PATH		path to public key 
+	-k [PATH]	path to public key, if not set, look into ssh-agent 
 	-n		only copy public key and setup authorized_keys
 	-q		suppress output
 	-u USERNAME	username to be used for remote login
 
 REMOTE_HOST can be either hostname or IP address
+Default key is ~/.ssh/id_rsa.pub
 If you do not specify the key file and multiple identities are present in ssh-agent, the first one is used.
 EOF
 exit 0
@@ -46,24 +47,26 @@ while getopts ":hk:nqu:" arg
 done
 shift $((OPTIND-1))
 
-#Check validity of the arguments
+#Check validity of $remotehost
 if [[ $1 =~ [0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3} ]]; then remotehost=$1; #Simple 4-octet regex, can be improved with a full-blown match
 	elif [[ $1 =~ ^[a-zA-Z0-9\-\.]{1,255}$ ]]; then remotehost=$1; #We also accept hostnames
 	else printusage; 
 fi
+#Verify OpenSSH pubkey file validity. If there's none specified, check ssh-agent for useable identities.
 if [[ -z $key ]]; then 
 		if [[ -n $(pgrep ssh-agent) ]]; then 
 			if ! [[ $(ssh-add -l) =~ "The agent has no identities" ]]; then 
-				key=$(ssh-add -l | head -1 | cut -d" " -f3)
+				key=$(ssh-add -l | head -1 | cut -d" " -f3).pub
 			fi
-			else printusage
+		elif [[ -r ~/.ssh/id_rsa.pub ]]; then 
+			key=~/.ssh/id_rsa.pub
 		fi
-	elif  [[ -z $(grep ssh-rsa $key) && -z $(grep ssh-dss $key) ]]; then 
+	elif  [[ -z $(grep ssh-rsa $key) && -z $(grep ssh-dss $key) ]]; then
 		echo "$key is not a valid SSH public key"
 		exit 1
 fi
 #Verify writeability of the remote directory
-#Then check existence of .ssh and authorized_keys. If not, create those
+#Then check existence of .ssh and authorized_keys. If not, create them
 if [[ -z $quiet ]]; then echo "Testing if we can write to remote directory..."; fi
 ssh $quiet $username@$remotehost bash << EOF
 touch "$testfile"
@@ -106,5 +109,4 @@ if [[ $keysonly = 0 ]]; then
 	if [[ -r ~/.bash_logout ]]; then bash_logout=~/.bash_logout; fi
 	
 	scp $quiet $bashrc $bash_profile $vimrc $screenrc $bash_logout $username@$remotehost:~
-	if [[ -z $? ]]; then echo "Success"; fi
 fi 
