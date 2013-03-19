@@ -13,12 +13,12 @@ while getopts ":m:qr:" opt; do
 done
 shift $((OPTIND - 1))
 
-if [[ -z "$*" ]]; then	#Exit if no arguments
+if [[ -z "$*" ]]; then	# Exit if no arguments
 	echo $usage
 	exit 1
 fi
 
-if !  [[ -d "$repo/.git" ]]; then		#Check if the repository exists at given location
+if !  [[ -d "$repo/.git" ]]; then		# Check if the repository exists at given location
 	echo "$repo is not a git repository"
 	exit 1
 fi	
@@ -26,12 +26,12 @@ fi
 # Move the files into repo
 for filename in "$@"; do 
 	target=$repo/${filename##*/} # Strip directory part and append repo path
-	if [[ -e $1 ]] && [[ -r $1 ]];  then 
+	if [[ -e $filename ]] && [[ -r $filename ]];  then 
 		if ! [[ -e $target ]] || [[ $filename -nt $target ]]; then  # Check if the file already exists in repository, if not, put it there
 			cp -r $filename $target
 		fi
 
-		cd "$repo" # We should be in git's repo directory, otherwise it won't understand
+		cd "$repo" # We should be in git's repo directory
 		git add ${filename##*/}
 		cd $OLDPWD
 	fi
