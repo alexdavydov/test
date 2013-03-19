@@ -1,11 +1,11 @@
 #!/bin/bash
 
-#Setup current user's environment on a remote host
-#(C) 2013 Alex Davydov 
+# Setup current user's environment on a remote host
+# (c) 2013 Alex Davydov 
 
 function printhelp () {
 cat << EOF
-setupenv - setup current user's environment and keys on a remote host
+  setupenv - setup current user's environment and keys on a remote host
 
 Usage:	setupenv [OPTIONS] REMOTE_HOST
 
@@ -28,46 +28,52 @@ echo "Usage: setupenv [-hnq] [-k PUBKEY] [-u USERNAME] REMOTE_HOST"
 exit 1
 }
 
-declare remotehost
-testfile=file_$(cat /dev/urandom | tr -dc [:alnum:] | head -c16) #Make a good random filename
+# Declarations
+testfile=file_$(cat /dev/urandom | tr -dc [:alnum:] | head -c16) # Make a good random filename
 username=$USER
 keysonly=0
 quiet=""
 
-while getopts ":hk:nqu:" arg
-	do 
+while getopts ":hk:nqu:" arg; do 
 	case $arg in
 	h ) printhelp  ;;
 	k ) key=$OPTARG ;;
 	n ) keysonly=1 ;;
 	q ) quiet="-q" ;;
-	u ) if [[ -n $OPTARG ]]; then username="$OPTARG"; else printusage; fi ;;
+	u ) if [[ -n $OPTARG ]]; then 
+		username="$OPTARG" 
+	    else printusage; fi ;;
 	\?) printusage ;; 
 	esac
 done
 shift $((OPTIND-1))
 
-#Check validity of $remotehost
-if [[ $1 =~ [0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3} ]]; then remotehost=$1; #Simple 4-octet regex, can be improved with a full-blown match
-	elif [[ $1 =~ ^[a-zA-Z0-9\-\.]{1,255}$ ]]; then remotehost=$1; #We also accept hostnames
-	else printusage; 
+# Check validity of $remotehost
+remotehost=$1
+if ! [[ $remotehost =~ ^[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}$ || $remotehost =~ ^[[:alnum:]]\_\.{1,255}$  ]]; then # Simple 4-octet regex, can be improved with a full-blown match
+	printusage 
+#elif ! [[ $remotehost =~ ^[a-zA-Z0-9\-\.]{1,255}$ ]]; then  # We also accept hostnames
+#	printusage 
 fi
-#Verify OpenSSH pubkey file validity. If there's none specified, check ssh-agent for useable identities.
+
+# Verify OpenSSH pubkey file validity. If there's none specified, check ssh-agent for useable identities.
 if [[ -z $key ]]; then 
-		if [[ -n $(pgrep ssh-agent) ]]; then 
-			if ! [[ $(ssh-add -l) =~ "The agent has no identities" ]]; then 
-				key=$(ssh-add -l | head -1 | cut -d" " -f3).pub
-			fi
-		elif [[ -r ~/.ssh/id_rsa.pub ]]; then 
-			key=~/.ssh/id_rsa.pub
-		else printusage
+	if [[ -n $(pgrep ssh-agent) ]]; then 
+		if ! [[ $(ssh-add -l) =~ "The agent has no identities" ]]; then 
+			key=$(ssh-add -l | head -1 | cut -d" " -f3).pub
 		fi
-	elif  [[ -z $(grep ssh-rsa $key) && -z $(grep ssh-dss $key) ]]; then
-		echo "$key is not a valid SSH public key"
-		exit 1
+	elif [[ -r ~/.ssh/id_rsa.pub ]]; then 
+		key=~/.ssh/id_rsa.pub
+	else 
+		printusage
+	fi
+elif  [[ -z $(grep ssh-rsa $key) && -z $(grep ssh-dss $key) ]]; then
+	echo "$key is not a valid OpenSSH public key"
+	exit 1
 fi
-#Verify writeability of the remote directory
-#Then check existence of .ssh and authorized_keys. If not, create them
+
+# Verify writeability of the remote directory
+# Then check existence of .ssh and authorized_keys. If not, create them
 if [[ -z $quiet ]]; then echo "Testing if we can write to remote directory..."; fi
 ssh $quiet $username@$remotehost bash << EOF
 touch "$testfile"
@@ -91,14 +97,15 @@ EOF
 if [[ -z  $quiet ]]; then echo "Copying public key...:"; fi
 scp $quiet $key $username@$remotehost:~/.ssh
 
+key=${key##*/}
 if [[ -z  $quiet ]]; then echo "Setting up remote authorized_keys..."; fi
 ssh $quiet $username@$remotehost bash << EOF
-cd ~/.ssh
-chmod 644 ${key##*/}
-cat ${key##*/} >> authorized_keys
+	cd ~/.ssh
+	chmod 644 $key
+	cat $key >> authorized_keys
 EOF
 
-#Copy user's environment files
+# Copy user's environment files
 if [[ $keysonly = 0 ]]; then
 
 	if [[ -z  $quiet ]]; then echo "Copying environment files..."; fi
@@ -110,4 +117,4 @@ if [[ $keysonly = 0 ]]; then
 	if [[ -r ~/.bash_logout ]]; then bash_logout=~/.bash_logout; fi
 	
 	scp $quiet $bashrc $bash_profile $vimrc $screenrc $bash_logout $username@$remotehost:~
-fi 
+fi
