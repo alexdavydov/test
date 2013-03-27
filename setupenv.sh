@@ -5,8 +5,7 @@
 
 function printhelp () {
 cat << EOF
-  setupenv - setup current user's environment and keys on a remote host
-
+setupenv - setup current user's environment and keys on a remote host
 Usage:	setupenv [OPTIONS] REMOTE_HOST
 
 	-h		print this message
@@ -43,6 +42,7 @@ while getopts ":hk:nqu:" arg; do
 	u ) if [[ -n $OPTARG ]]; then 
 		username="$OPTARG" 
 	    else printusage; fi ;;
+	* ) printusage ;;
 	\?) printusage ;; 
 	esac
 done
