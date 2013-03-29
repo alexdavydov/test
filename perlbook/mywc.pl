@@ -1,6 +1,6 @@
 #!/usr/bin/perl
-#
-#
+##
+##
 
 use v5.8.8;
 use strict;
@@ -11,7 +11,10 @@ my $totallines;
 my $totalwords;
 my $totalchars;
 
-foreach my $file (@ARGV) {
+my $stdin = *STDIN;
+
+
+foreach my $file ($stdin) {
 	open (FD, $file) || die "Could not open $file";
 	my($chars, $lines,$words);
 	while (<FD>) {
