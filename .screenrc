@@ -1,0 +1,11 @@
+shell bash
+startup_message off
+defscrollback 5000
+termcapinfo xterm ti@:te@
+
+escape ^Bb
+setenv SSH_AUTH_SOCK $HOME/.ssh/ssh_auth_sock
+v_split
+screen
+focus
+screen
